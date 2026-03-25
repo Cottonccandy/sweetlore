@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Lorebook Builder</title>
+<title>Lia Lorebook</title>
 
 <style>
 body {
@@ -11,23 +11,12 @@ body {
   margin: 0;
 }
 
-/* ส่วนหัว */
 .header {
   background: white;
   padding: 15px;
   text-align: center;
-  border-bottom: 3px solid #ffd6f6;
 }
 
-.header input {
-  width: 80%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-/* ส่วน lore */
 .section {
   padding: 15px;
 }
@@ -63,54 +52,46 @@ button {
   margin-top: 10px;
   border-radius: 10px;
 }
-
-.sticker {
-  text-align: center;
-  font-size: 26px;
-}
 </style>
 </head>
 
 <body>
 
-<!-- 🏷 ส่วนชื่อ lorebook -->
 <div class="header">
-  <div class="sticker">🍭✨🍬</div>
-  <h2>Lorebook Name</h2>
-  <input id="bookName" placeholder="ตั้งชื่อ Lorebook">
+  <h2>🍭 Lia Lorebook Builder</h2>
+  <input id="bookName" placeholder="ชื่อ Lorebook">
 </div>
 
-<!-- 📖 ส่วนจัดการ lore -->
 <div class="section">
 
-  <div class="container">
-    <h3>➕ เพิ่ม / แก้ Lore</h3>
+<div class="container">
+  <h3>➕ เพิ่ม Lore</h3>
 
-    <input id="name" placeholder="Name">
-    <input id="keys" placeholder="Keys (คั่นด้วย ,)">
-    <textarea id="content" placeholder="Content"></textarea>
+  <input id="name" placeholder="Name (ไม่ใส่ก็ได้)">
+  <input id="keys" placeholder="Keys (คั่นด้วย ,)">
+  <textarea id="content" placeholder="Content"></textarea>
 
-    <input id="order" type="number" placeholder="Order">
+  <input id="order" type="number" value="100">
 
-    <select id="position">
-      <option value="before_char">Before Char</option>
-      <option value="after_char">After Char</option>
-      <option value="before_em">Before EM</option>
-      <option value="after_em">After EM</option>
-      <option value="before_an">Before AN</option>
-      <option value="after_an">After AN</option>
-    </select>
+  <select id="position">
+    <option value="before_char">Before Char</option>
+    <option value="after_char">After Char</option>
+    <option value="before_em">Before EM</option>
+    <option value="after_em">After EM</option>
+    <option value="before_an">Before AN</option>
+    <option value="after_an">After AN</option>
+  </select>
 
-    <button onclick="addOrUpdate()">➕ เพิ่ม / แก้</button>
-    <button onclick="exportJSON()">💾 Export</button>
-    <button onclick="copyJSON()">📋 Copy</button>
-    <input type="file" onchange="importJSON(event)">
-  </div>
+  <button onclick="addOrUpdate()">➕ เพิ่ม / แก้</button>
+  <button onclick="exportJSON()">💾 Export</button>
+  <button onclick="copyJSON()">📋 Copy</button>
+  <input type="file" onchange="importJSON(event)">
+</div>
 
-  <div class="container">
-    <h3>📜 รายการ Lore</h3>
-    <div id="list"></div>
-  </div>
+<div class="container">
+  <h3>📜 รายการ Lore</h3>
+  <div id="list"></div>
+</div>
 
 </div>
 
@@ -119,15 +100,19 @@ let entries = [];
 let editIndex = -1;
 
 function addOrUpdate() {
-  let name = document.getElementById("name").value;
-  let keys = document.getElementById("keys").value.split(",");
-  let content = document.getElementById("content").value;
-  let order = parseInt(document.getElementById("order").value) || 0;
+  let name = document.getElementById("name").value || "";
+  let keys = document.getElementById("keys").value
+    ? document.getElementById("keys").value.split(",")
+    : [];
+  let content = document.getElementById("content").value || "";
+  let order = document.getElementById("order").value
+    ? parseInt(document.getElementById("order").value)
+    : 100;
   let position = document.getElementById("position").value;
 
-  if (!name || !content) return alert("กรอกให้ครบ!");
-
-  let entry = { name, keys, content, order, position, enabled: true };
+  let entry = {
+    name, keys, content, order, position, enabled: true
+  };
 
   if (editIndex >= 0) {
     entries[editIndex] = entry;
@@ -148,7 +133,8 @@ function render() {
     let div = document.createElement("div");
     div.className = "card";
     div.innerHTML = `
-      <b>${e.name}</b> (${e.position})<br>
+      <b>${e.name || "(ไม่มีชื่อ)"}</b> (${e.position})<br>
+      Order: ${e.order}<br>
       <button onclick="edit(${i})">✏️</button>
       <button onclick="remove(${i})">🗑</button>
     `;
@@ -175,7 +161,7 @@ function clearForm() {
   name.value = "";
   keys.value = "";
   content.value = "";
-  order.value = "";
+  order.value = 100;
 }
 
 function exportJSON() {
