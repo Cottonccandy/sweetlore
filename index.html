@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Lorebook</title>
+<title>Lia Lorebook</title>
 
 <style>
 body {
@@ -100,18 +100,21 @@ let entries = [];
 let editIndex = -1;
 
 function addOrUpdate() {
-  let name = document.getElementById("name").value || "";
-  let keys = document.getElementById("keys").value
-    ? document.getElementById("keys").value.split(",")
-    : [];
-  let content = document.getElementById("content").value || "";
-  let order = document.getElementById("order").value
-    ? parseInt(document.getElementById("order").value)
-    : 100;
-  let position = document.getElementById("position").value;
+  const name = document.getElementById("name").value || "";
+  const keysRaw = document.getElementById("keys").value;
+  const keys = keysRaw ? keysRaw.split(",").map(k => k.trim()) : [];
+  const content = document.getElementById("content").value || "";
+  const orderInput = document.getElementById("order").value;
+  const order = orderInput ? parseInt(orderInput) : 100;
+  const position = document.getElementById("position").value;
 
-  let entry = {
-    name, keys, content, order, position, enabled: true
+  const entry = {
+    name,
+    keys,
+    content,
+    order,
+    position,
+    enabled: true
   };
 
   if (editIndex >= 0) {
@@ -126,82 +129,90 @@ function addOrUpdate() {
 }
 
 function render() {
-  let list = document.getElementById("list");
+  const list = document.getElementById("list");
   list.innerHTML = "";
 
   entries.forEach((e, i) => {
-    let div = document.createElement("div");
+    const div = document.createElement("div");
     div.className = "card";
+
     div.innerHTML = `
-      <b>${e.name || "(ไม่มีชื่อ)"}</b> (${e.position})<br>
+      <b>${e.name || "(ไม่มีชื่อ)"}</b><br>
+      Keys: ${e.keys.join(", ")}<br>
+      Position: ${e.position}<br>
       Order: ${e.order}<br>
-      <button onclick="edit(${i})">✏️</button>
-      <button onclick="remove(${i})">🗑</button>
+      <button onclick="editEntry(${i})">✏️ แก้</button>
+      <button onclick="deleteEntry(${i})">🗑 ลบ</button>
     `;
+
     list.appendChild(div);
   });
 }
 
-function edit(i) {
-  let e = entries[i];
-  name.value = e.name;
-  keys.value = e.keys.join(",");
-  content.value = e.content;
-  order.value = e.order;
-  position.value = e.position;
+function editEntry(i) {
+  const e = entries[i];
+
+  document.getElementById("name").value = e.name;
+  document.getElementById("keys").value = e.keys.join(",");
+  document.getElementById("content").value = e.content;
+  document.getElementById("order").value = e.order;
+  document.getElementById("position").value = e.position;
+
   editIndex = i;
 }
 
-function remove(i) {
-  entries.splice(i,1);
+function deleteEntry(i) {
+  entries.splice(i, 1);
   render();
 }
 
 function clearForm() {
-  name.value = "";
-  keys.value = "";
-  content.value = "";
-  order.value = 100;
+  document.getElementById("name").value = "";
+  document.getElementById("keys").value = "";
+  document.getElementById("content").value = "";
+  document.getElementById("order").value = 100;
+  editIndex = -1;
 }
 
 function exportJSON() {
-  let bookNameInput = document.getElementById("bookName").value || "Lorebook";
+  const bookName = document.getElementById("bookName").value || "Lorebook";
 
-  // เช็คว่ามีข้อมูลมั้ย
   if (entries.length === 0) {
-    alert("ยังไม่มี lore เลยนะ!");
+    alert("ยังไม่มี lore!");
     return;
   }
 
-  let data = {
-    name: bookNameInput,
+  const data = {
+    name: bookName,
     entries: entries
   };
 
-  let blob = new Blob([JSON.stringify(data, null, 2)], {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json"
   });
 
-  let a = document.createElement("a");
+  const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = bookNameInput + ".json";
+  a.download = bookName + ".json";
   a.click();
 }
+
 function copyJSON() {
-  let name = bookName.value || "Lorebook";
-  let data = JSON.stringify({ name, entries }, null, 2);
+  const bookName = document.getElementById("bookName").value || "Lorebook";
+  const data = JSON.stringify({ name: bookName, entries: entries }, null, 2);
+
   navigator.clipboard.writeText(data);
   alert("คัดลอกแล้ว!");
 }
 
 function importJSON(event) {
-  let file = event.target.files[0];
-  let reader = new FileReader();
+  const file = event.target.files[0];
+  const reader = new FileReader();
 
   reader.onload = function(e) {
-    let data = JSON.parse(e.target.result);
+    const data = JSON.parse(e.target.result);
     entries = data.entries || [];
-    bookName.value = data.name || "";
+    document.getElementById("bookName").value = data.name || "";
     render();
   };
 
