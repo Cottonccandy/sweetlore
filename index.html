@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Lorebook Builder</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #ffb6f9, #a0c4ff);
+  margin: 0;
+}
+
+/* ส่วนหัว */
+.header {
+  background: white;
+  padding: 15px;
+  text-align: center;
+  border-bottom: 3px solid #ffd6f6;
+}
+
+.header input {
+  width: 80%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* ส่วน lore */
+.section {
+  padding: 15px;
+}
+
+.container {
+  background: white;
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+}
+
+input, textarea, select {
+  width: 100%;
+  margin: 6px 0;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+button {
+  margin: 5px 3px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #ff80bf;
+  color: white;
+  cursor: pointer;
+}
+
+.card {
+  background: #fff0f8;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.sticker {
+  text-align: center;
+  font-size: 26px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🏷 ส่วนชื่อ lorebook -->
+<div class="header">
+  <div class="sticker">🍭✨🍬</div>
+  <h2>Lorebook Name</h2>
+  <input id="bookName" placeholder="ตั้งชื่อ Lorebook">
+</div>
+
+<!-- 📖 ส่วนจัดการ lore -->
+<div class="section">
+
+  <div class="container">
+    <h3>➕ เพิ่ม / แก้ Lore</h3>
+
+    <input id="name" placeholder="Name">
+    <input id="keys" placeholder="Keys (คั่นด้วย ,)">
+    <textarea id="content" placeholder="Content"></textarea>
+
+    <input id="order" type="number" placeholder="Order">
+
+    <select id="position">
+      <option value="before_char">Before Char</option>
+      <option value="after_char">After Char</option>
+      <option value="before_em">Before EM</option>
+      <option value="after_em">After EM</option>
+      <option value="before_an">Before AN</option>
+      <option value="after_an">After AN</option>
+    </select>
+
+    <button onclick="addOrUpdate()">➕ เพิ่ม / แก้</button>
+    <button onclick="exportJSON()">💾 Export</button>
+    <button onclick="copyJSON()">📋 Copy</button>
+    <input type="file" onchange="importJSON(event)">
+  </div>
+
+  <div class="container">
+    <h3>📜 รายการ Lore</h3>
+    <div id="list"></div>
+  </div>
+
+</div>
+
+<script>
+let entries = [];
+let editIndex = -1;
+
+function addOrUpdate() {
+  let name = document.getElementById("name").value;
+  let keys = document.getElementById("keys").value.split(",");
+  let content = document.getElementById("content").value;
+  let order = parseInt(document.getElementById("order").value) || 0;
+  let position = document.getElementById("position").value;
+
+  if (!name || !content) return alert("กรอกให้ครบ!");
+
+  let entry = { name, keys, content, order, position, enabled: true };
+
+  if (editIndex >= 0) {
+    entries[editIndex] = entry;
+    editIndex = -1;
+  } else {
+    entries.push(entry);
+  }
+
+  clearForm();
+  render();
+}
+
+function render() {
+  let list = document.getElementById("list");
+  list.innerHTML = "";
+
+  entries.forEach((e, i) => {
+    let div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <b>${e.name}</b> (${e.position})<br>
+      <button onclick="edit(${i})">✏️</button>
+      <button onclick="remove(${i})">🗑</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function edit(i) {
+  let e = entries[i];
+  name.value = e.name;
+  keys.value = e.keys.join(",");
+  content.value = e.content;
+  order.value = e.order;
+  position.value = e.position;
+  editIndex = i;
+}
+
+function remove(i) {
+  entries.splice(i,1);
+  render();
+}
+
+function clearForm() {
+  name.value = "";
+  keys.value = "";
+  content.value = "";
+  order.value = "";
+}
+
+function exportJSON() {
+  let name = bookName.value || "Lorebook";
+  let data = { name, entries };
+
+  let blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "lorebook.json";
+  a.click();
+}
+
+function copyJSON() {
+  let name = bookName.value || "Lorebook";
+  let data = JSON.stringify({ name, entries }, null, 2);
+  navigator.clipboard.writeText(data);
+  alert("คัดลอกแล้ว!");
+}
+
+function importJSON(event) {
+  let file = event.target.files[0];
+  let reader = new FileReader();
+
+  reader.onload = function(e) {
+    let data = JSON.parse(e.target.result);
+    entries = data.entries || [];
+    bookName.value = data.name || "";
+    render();
+  };
+
+  reader.readAsText(file);
+}
+</script>
+
+</body>
+</html>
