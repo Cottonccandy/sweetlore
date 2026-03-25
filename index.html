@@ -165,16 +165,28 @@ function clearForm() {
 }
 
 function exportJSON() {
-  let name = bookName.value || "Lorebook";
-  let data = { name, entries };
+  let bookNameInput = document.getElementById("bookName").value || "Lorebook";
 
-  let blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+  // เช็คว่ามีข้อมูลมั้ย
+  if (entries.length === 0) {
+    alert("ยังไม่มี lore เลยนะ!");
+    return;
+  }
+
+  let data = {
+    name: bookNameInput,
+    entries: entries
+  };
+
+  let blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json"
+  });
+
   let a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "lorebook.json";
+  a.download = bookNameInput + ".json";
   a.click();
 }
-
 function copyJSON() {
   let name = bookName.value || "Lorebook";
   let data = JSON.stringify({ name, entries }, null, 2);
