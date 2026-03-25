@@ -83,14 +83,20 @@ button {
   </select>
 
   <button onclick="addOrUpdate()">➕ เพิ่ม / แก้</button>
-  <button onclick="exportJSON()">💾 Export</button>
-  <button onclick="copyJSON()">📋 Copy</button>
-  <input type="file" onchange="importJSON(event)">
 </div>
 
 <div class="container">
   <h3>📜 รายการ Lore</h3>
   <div id="list"></div>
+</div>
+
+<!-- 🔥 ปุ่มย้ายมาล่างสุด -->
+<div class="container">
+  <h3>📦 Export / Import</h3>
+
+  <button onclick="exportJSON()">💾 Export</button>
+  <button onclick="copyJSON()">📋 Copy</button>
+  <input type="file" onchange="importJSON(event)">
 </div>
 
 </div>
@@ -108,14 +114,7 @@ function addOrUpdate() {
   const order = orderInput ? parseInt(orderInput) : 100;
   const position = document.getElementById("position").value;
 
-  const entry = {
-    name,
-    keys,
-    content,
-    order,
-    position,
-    enabled: true
-  };
+  const entry = { name, keys, content, order, position, enabled: true };
 
   if (editIndex >= 0) {
     entries[editIndex] = entry;
@@ -174,11 +173,12 @@ function clearForm() {
   editIndex = -1;
 }
 
+/* 🔥 FIX สำคัญ: export ใช้ entries เท่านั้น */
 function exportJSON() {
   const bookName = document.getElementById("bookName").value || "Lorebook";
 
   if (entries.length === 0) {
-    alert("ยังไม่มี lore!");
+    alert("ยังไม่มี lore ที่บันทึก!");
     return;
   }
 
