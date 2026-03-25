@@ -175,16 +175,23 @@ function clearForm() {
 
 /* 🔥 FIX สำคัญ: export ใช้ entries เท่านั้น */
 function exportJSON() {
-  const bookName = document.getElementById("bookName").value || "Lorebook";
-
   if (entries.length === 0) {
-    alert("ยังไม่มี lore ที่บันทึก!");
+    alert("ยังไม่มี lore!");
     return;
   }
 
+  const formattedEntries = entries.map(e => ({
+    keys: e.keys,
+    content: e.content,
+    enabled: true,
+    extensions: {
+      position: e.position,
+      order: e.order
+    }
+  }));
+
   const data = {
-    name: bookName,
-    entries: entries
+    entries: formattedEntries
   };
 
   const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -193,7 +200,7 @@ function exportJSON() {
 
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = bookName + ".json";
+  a.download = "lorebook.json";
   a.click();
 }
 
