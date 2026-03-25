@@ -2,103 +2,68 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Lia Lorebook</title>
-
+<title>Lorebook Builder</title>
 <style>
-body {
-  font-family: Arial;
-  background: linear-gradient(135deg, #ffb6f9, #a0c4ff);
-  margin: 0;
-}
-
-.header {
-  background: white;
-  padding: 15px;
-  text-align: center;
-}
-
-.section {
-  padding: 15px;
-}
-
-.container {
-  background: white;
-  padding: 15px;
-  border-radius: 15px;
-  margin-bottom: 15px;
-}
-
-input, textarea, select {
-  width: 100%;
-  margin: 6px 0;
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-button {
-  margin: 5px 3px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 10px;
-  background: #ff80bf;
-  color: white;
-  cursor: pointer;
-}
-
-.card {
-  background: #fff0f8;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 10px;
-}
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #ffb6f9, #a0c4ff); margin: 0; color: #333; }
+  .header { background: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  .section { padding: 20px; max-width: 800px; margin: auto; }
+  .container { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+  input, textarea, select { width: 100%; margin: 8px 0; padding: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+  button { margin: 5px 2px; padding: 10px 15px; border: none; border-radius: 8px; background: #ff80bf; color: white; cursor: pointer; transition: 0.2s; }
+  button:hover { background: #ff60a8; }
+  .card { background: #fff0f8; padding: 15px; margin-top: 10px; border-radius: 10px; border-left: 5px solid #ff80bf; }
+  h3 { margin-top: 0; color: #6a5acd; }
 </style>
 </head>
-
 <body>
 
 <div class="header">
-  <h2>🍭Lorebook Builder</h2>
-  <input id="bookName" placeholder="ชื่อ Lorebook">
+  <h2>🍭 Lorebook Builder for SillyTavern</h2>
+  <input id="bookName" placeholder="ชื่อ Lorebook (เช่น World_Lore)" style="max-width: 400px;">
 </div>
 
 <div class="section">
+  <div class="container">
+    <h3>➕ เพิ่ม/แก้ไข Lore Entry</h3>
+    <input id="name" placeholder="ชื่อ Entry (สำหรับดูเอง)">
+    <input id="keys" placeholder="Keyword (คั่นด้วยเครื่องหมายจุลภาค ,)">
+    <textarea id="content" placeholder="เนื้อหาที่จะส่งไปให้ AI" rows="4"></textarea>
+    
+    <div style="display: flex; gap: 10px;">
+      <div style="flex: 1;">
+        <label><small>Insertion Order</small></label>
+        <input id="order" type="number" value="100">
+      </div>
+      <div style="flex: 1;">
+        <label><small>Position</small></label>
+        <select id="position">
+          <option value="0">0: Before Char Definitions</option>
+          <option value="1">1: After Char Definitions</option>
+          <option value="2">2: Before Examples</option>
+          <option value="3">3: After Examples</option>
+          <option value="4">4: Before World Info</option>
+        </select>
+      </div>
+    </div>
 
-<div class="container">
-  <h3>➕ เพิ่ม Lore</h3>
+    <button onclick="addOrUpdate()">✅ บันทึก Entry</button>
+    <button onclick="clearForm()" style="background: #999;">ล้างฟอร์ม</button>
+  </div>
 
-  <input id="name" placeholder="Name (ไม่ใส่ก็ได้)">
-  <input id="keys" placeholder="Keys (คั่นด้วย ,)">
-  <textarea id="content" placeholder="Content"></textarea>
+  <div class="container">
+    <h3>📜 รายการในเล่ม</h3>
+    <div id="list"></div>
+  </div>
 
-  <input id="order" type="number" value="100">
-
-  <select id="position">
-    <option value="before_char">Before Char</option>
-    <option value="after_char">After Char</option>
-    <option value="before_em">Before EM</option>
-    <option value="after_em">After EM</option>
-    <option value="before_an">Before AN</option>
-    <option value="after_an">After AN</option>
-  </select>
-
-  <button onclick="addOrUpdate()">➕ เพิ่ม / แก้</button>
-</div>
-
-<div class="container">
-  <h3>📜 รายการ Lore</h3>
-  <div id="list"></div>
-</div>
-
-<!-- 🔥 ปุ่มย้ายมาล่างสุด -->
-<div class="container">
-  <h3>📦 Export / Import</h3>
-
-  <button onclick="exportJSON()">💾 Export</button>
-  <button onclick="copyJSON()">📋 Copy</button>
-  <input type="file" onchange="importJSON(event)">
-</div>
-
+  <div class="container" style="text-align: center;">
+    <h3>📦 จัดการไฟล์</h3>
+    <button onclick="exportJSON()" style="background: #4CAF50; font-weight: bold;">💾 Download JSON</button>
+    <button onclick="copyJSON()" style="background: #2196F3;">📋 Copy to Clipboard</button>
+    <div style="margin-top: 15px;">
+      <label>📂 Import ไฟล์เดิม: </label>
+      <input type="file" id="fileInput" onchange="importJSON(event)" style="width: auto; border: none;">
+    </div>
+  </div>
 </div>
 
 <script>
@@ -108,13 +73,23 @@ let editIndex = -1;
 function addOrUpdate() {
   const name = document.getElementById("name").value || "";
   const keysRaw = document.getElementById("keys").value;
-  const keys = keysRaw ? keysRaw.split(",").map(k => k.trim()) : [];
-  const content = document.getElementById("content").value || "";
-  const orderInput = document.getElementById("order").value;
-  const order = orderInput ? parseInt(orderInput) : 100;
-  const position = document.getElementById("position").value;
+  const keys = keysRaw ? keysRaw.split(",").map(k => k.trim()).filter(k => k !== "") : [];
+  const content = document.getElementById("content").value;
+  const order = parseInt(document.getElementById("order").value) || 100;
+  const position = parseInt(document.getElementById("position").value);
 
-  const entry = { name, keys, content, order, position, enabled: true };
+  if (!content) { alert("กรุณาใส่ Content ด้วยครับ"); return; }
+
+  const entry = {
+    uid: editIndex >= 0 ? entries[editIndex].uid : Date.now(),
+    key: keys,
+    comment: name,
+    content: content,
+    order: order,
+    insertion_order: order,
+    placement: position,
+    enabled: true
+  };
 
   if (editIndex >= 0) {
     entries[editIndex] = entry;
@@ -129,40 +104,133 @@ function addOrUpdate() {
 
 function render() {
   const list = document.getElementById("list");
-  list.innerHTML = "";
+  list.innerHTML = entries.length === 0 ? "<small>ยังไม่มีข้อมูล</small>" : "";
 
   entries.forEach((e, i) => {
     const div = document.createElement("div");
     div.className = "card";
-
     div.innerHTML = `
-      <b>${e.name || "(ไม่มีชื่อ)"}</b><br>
-      Keys: ${e.keys.join(", ")}<br>
-      Position: ${e.position}<br>
-      Order: ${e.order}<br>
-      <button onclick="editEntry(${i})">✏️ แก้</button>
-      <button onclick="deleteEntry(${i})">🗑 ลบ</button>
+      <strong>${e.comment || "No Name"}</strong> <small>(Order: ${e.order})</small><br>
+      <small style="color: #666;">Keys: ${e.key.join(", ") || "ไม่มี"}</small>
+      <div style="margin-top: 10px;">
+        <button onclick="editEntry(${i})" style="background:#ffb647">✏️ แก้ไข</button>
+        <button onclick="deleteEntry(${i})" style="background:#ff4d4d">🗑 ลบ</button>
+      </div>
     `;
-
     list.appendChild(div);
   });
 }
 
+function buildSillyTavernData() {
+  const bookName = document.getElementById("bookName").value || "New Lorebook";
+  
+  // สร้าง Object ตามโครงสร้าง SillyTavern V2
+  const finalEntries = {};
+  entries.forEach((e, index) => {
+    finalEntries[index] = {
+      uid: index,
+      key: e.key,
+      keysecondary: [],
+      comment: e.comment,
+      content: e.content,
+      constant: false,
+      selective: false,
+      selectiveLogic: 0,
+      add_to_scan: true,
+      disable_scan: false,
+      enabled: true,
+      position: e.placement, // ST legacy field
+      probability: 100,
+      use_probability: false,
+      depth: 4,
+      selective_filter: [],
+      display_index: index,
+      extensions: {
+        position: e.placement,
+        exclude_recursion: false,
+        display_index: index,
+        order: e.order,
+        probability: 100,
+        use_probability: false,
+        depth: 4
+      }
+    };
+  });
+
+  return {
+    name: bookName,
+    description: "Created via Lia Lorebook Builder",
+    repeat_char_name: true,
+    scan_depth: 50,
+    recursive_scanning: false,
+    entries: finalEntries
+  };
+}
+
+function exportJSON() {
+  if (entries.length === 0) { alert("เพิ่ม Lore อย่างน้อย 1 อันก่อนครับ"); return; }
+  const data = buildSillyTavernData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${data.name}.json`;
+  a.click();
+}
+
+function copyJSON() {
+  const data = buildSillyTavernData();
+  navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+  alert("คัดลอก JSON เรียบร้อย!");
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      document.getElementById("bookName").value = data.name || "";
+      
+      const importedEntries = [];
+      if (data.entries) {
+        Object.values(data.entries).forEach(v => {
+          importedEntries.push({
+            uid: v.uid,
+            key: v.key || [],
+            comment: v.comment || "",
+            content: v.content || "",
+            order: v.extensions?.order || v.order || 100,
+            placement: v.extensions?.position || v.position || 0,
+            enabled: v.enabled
+          });
+        });
+      }
+      entries = importedEntries;
+      render();
+    } catch (err) {
+      alert("ไฟล์ JSON ไม่ถูกต้องสำหรับ SillyTavern");
+    }
+  };
+  reader.readAsText(file);
+}
+
 function editEntry(i) {
   const e = entries[i];
-
-  document.getElementById("name").value = e.name;
-  document.getElementById("keys").value = e.keys.join(",");
+  document.getElementById("name").value = e.comment;
+  document.getElementById("keys").value = e.key.join(",");
   document.getElementById("content").value = e.content;
   document.getElementById("order").value = e.order;
-  document.getElementById("position").value = e.position;
-
+  document.getElementById("position").value = e.placement;
   editIndex = i;
+  window.scrollTo(0, 0);
 }
 
 function deleteEntry(i) {
-  entries.splice(i, 1);
-  render();
+  if(confirm("ลบอันนี้ใช่ไหม?")) {
+    entries.splice(i, 1);
+    render();
+  }
 }
 
 function clearForm() {
@@ -172,60 +240,6 @@ function clearForm() {
   document.getElementById("order").value = 100;
   editIndex = -1;
 }
-
-/* 🔥 FIX สำคัญ: export ใช้ entries เท่านั้น */
-function exportJSON() {
-  if (entries.length === 0) {
-    alert("ยังไม่มี lore!");
-    return;
-  }
-
-  const formattedEntries = entries.map(e => ({
-    keys: e.keys,
-    content: e.content,
-    enabled: true,
-    extensions: {
-      position: e.position,
-      order: e.order
-    }
-  }));
-
-  const data = {
-    entries: formattedEntries
-  };
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json"
-  });
-
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "lorebook.json";
-  a.click();
-}
-
-function copyJSON() {
-  const bookName = document.getElementById("bookName").value || "Lorebook";
-  const data = JSON.stringify({ name: bookName, entries: entries }, null, 2);
-
-  navigator.clipboard.writeText(data);
-  alert("คัดลอกแล้ว!");
-}
-
-function importJSON(event) {
-  const file = event.target.files[0];
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    const data = JSON.parse(e.target.result);
-    entries = data.entries || [];
-    document.getElementById("bookName").value = data.name || "";
-    render();
-  };
-
-  reader.readAsText(file);
-}
 </script>
-
 </body>
 </html>
